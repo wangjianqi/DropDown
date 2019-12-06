@@ -9,7 +9,7 @@
 import UIKit
 
 extension DropDown {
-
+    //设置默认样式
 	public class func setupDefaultAppearance() {
 		let appearance = DropDown.appearance()
 

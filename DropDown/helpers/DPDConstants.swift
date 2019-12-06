@@ -46,10 +46,11 @@ internal struct DPDConstant {
 	}
 
 	internal struct Animation {
-
+        //动画时间
 		static let Duration = 0.15
 		static let EntranceOptions: UIView.AnimationOptions = [.allowUserInteraction, .curveEaseOut]
 		static let ExitOptions: UIView.AnimationOptions = [.allowUserInteraction, .curveEaseIn]
+        //缩放
 		static let DownScaleTransform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 
 	}

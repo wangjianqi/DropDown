@@ -88,7 +88,8 @@ class ViewController: UIViewController {
 	@IBAction func showKeyboard(_ sender: AnyObject) {
 		textField.becomeFirstResponder()
 	}
-	
+
+    //隐藏键盘
 	@IBAction func hideKeyboard(_ sender: AnyObject) {
 		view.endEditing(false)
 	}
@@ -159,7 +160,8 @@ class ViewController: UIViewController {
 	
 	func setupChooseArticleDropDown() {
 		chooseArticleDropDown.anchorView = chooseArticleButton
-		
+        chooseArticleDropDown.arrowIndicationX = 10
+        chooseArticleDropDown.topOffset = CGPoint(x: 0, y: 1000)
 		// Will set a custom with instead of anchor view width
 		//		dropDown.width = 100
 		
@@ -199,7 +201,7 @@ class ViewController: UIViewController {
 		// You can manually select a row if needed
 		//		dropDown.selectRowAtIndex(3)
 	}
-	
+    //设置
 	func setupAmountDropDown() {
 		amountDropDown.anchorView = amountButton
 		

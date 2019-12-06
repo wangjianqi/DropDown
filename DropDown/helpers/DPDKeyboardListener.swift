@@ -7,11 +7,11 @@
 //
 
 import UIKit
-
+//修饰符
 internal final class KeyboardListener {
 	
 	static let sharedInstance = KeyboardListener()
-	
+	//set方法是fileprivate
 	fileprivate(set) var isVisible = false
 	fileprivate(set) var keyboardFrame = CGRect.zero
 	fileprivate var isListening = false
@@ -60,7 +60,7 @@ extension KeyboardListener {
 		isVisible = false
 		keyboardFrame = keyboardFrame(fromNotification: notification)
 	}
-	
+    //获取键盘尺寸
 	fileprivate func keyboardFrame(fromNotification notification: Notification) -> CGRect {
 		return ((notification as NSNotification).userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? CGRect.zero
 	}

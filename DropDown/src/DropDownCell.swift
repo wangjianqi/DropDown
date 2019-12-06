@@ -7,14 +7,16 @@
 //
 
 import UIKit
-
+//cell
 open class DropDownCell: UITableViewCell {
 		
 	//UI
 	@IBOutlet open weak var optionLabel: UILabel!
-	
+	//选中的背景色
 	var selectedBackgroundColor: UIColor?
+    //高亮的文字颜色
     var highlightTextColor: UIColor?
+    //正常文字颜色
     var normalTextColor: UIColor?
 
 }
@@ -44,7 +46,7 @@ extension DropDownCell {
 	override open func setHighlighted(_ highlighted: Bool, animated: Bool) {
 		setSelected(highlighted, animated: animated)
 	}
-	
+	//重写选中
 	override open func setSelected(_ selected: Bool, animated: Bool) {
 		let executeSelection: () -> Void = { [weak self] in
 			guard let `self` = self else { return }

@@ -7,13 +7,15 @@
 //
 
 import UIKit
-
+//索引：别名
 public typealias Index = Int
 public typealias Closure = () -> Void
 public typealias SelectionClosure = (Index, String) -> Void
 public typealias MultiSelectionClosure = ([Index], [String]) -> Void
+//返回值是String
 public typealias ConfigurationClosure = (Index, String) -> String
 public typealias CellConfigurationClosure = (Index, String, DropDownCell) -> Void
+//计算布局元组
 private typealias ComputeLayoutTuple = (x: CGFloat, y: CGFloat, width: CGFloat, offscreenHeight: CGFloat)
 
 /// Can be `UIView` or `UIBarButtonItem`.
@@ -25,7 +27,7 @@ public protocol AnchorView: class {
 }
 
 extension UIView: AnchorView {
-
+    //
 	public var plainView: UIView {
 		return self
 	}
@@ -33,7 +35,7 @@ extension UIView: AnchorView {
 }
 
 extension UIBarButtonItem: AnchorView {
-
+    //为了获取UIBarButtonItem的view
 	public var plainView: UIView {
 		return value(forKey: "view") as! UIView
 	}
@@ -76,13 +78,16 @@ public final class DropDown: UIView {
 	//MARK: - Properties
 
 	/// The current visible drop down. There can be only one visible drop down at a time.
+    //同时只能有一个view
 	public static weak var VisibleDropDown: DropDown?
 
 	//MARK: UI
 	fileprivate let dismissableView = UIView()
 	fileprivate let tableViewContainer = UIView()
 	fileprivate let tableView = UITableView()
+    //
 	fileprivate var templateCell: DropDownCell!
+    //箭头
     fileprivate lazy var arrowIndication: UIImageView = {
         UIGraphicsBeginImageContextWithOptions(CGSize(width: 20, height: 10), false, 0)
         let path = UIBezierPath()
@@ -102,6 +107,7 @@ public final class DropDown: UIView {
 
 
 	/// The view to which the drop down will displayed onto.
+    //锚点view
 	public weak var anchorView: AnchorView? {
 		didSet { setNeedsUpdateConstraints() }
 	}
@@ -111,6 +117,7 @@ public final class DropDown: UIView {
 
 	See `Direction` enum for more info.
 	*/
+    //方向
 	public var direction = Direction.any
 
 	/**
@@ -120,6 +127,7 @@ public final class DropDown: UIView {
 	left corner for its origin, so an offset equal to (0, 0).
 	You can change here the default drop down origin.
 	*/
+    //topOffset
 	public var topOffset: CGPoint = .zero {
 		didSet { setNeedsUpdateConstraints() }
 	}
@@ -131,6 +139,7 @@ public final class DropDown: UIView {
 	left corner for its origin, so an offset equal to (0, 0).
 	You can change here the default drop down origin.
 	*/
+    //位置
 	public var bottomOffset: CGPoint = .zero {
 		didSet { setNeedsUpdateConstraints() }
 	}
@@ -139,6 +148,7 @@ public final class DropDown: UIView {
     The offset from the bottom of the window when the drop down is shown below the anchor view.
     DropDown applies this offset only if keyboard is hidden.
     */
+    //底部边距
     public var offsetFromWindowBottom = CGFloat(0) {
         didSet { setNeedsUpdateConstraints() }
     }
@@ -148,6 +158,7 @@ public final class DropDown: UIView {
 
 	Defaults to `anchorView.bounds.width - offset.x`.
 	*/
+    //设定固定宽度
 	public var width: CGFloat? {
 		didSet { setNeedsUpdateConstraints() }
 	}
@@ -157,9 +168,11 @@ public final class DropDown: UIView {
 
 	arrowIndication will be add to tableViewContainer when configured
 	*/
+    //箭头的x坐标
 	public var arrowIndicationX: CGFloat? {
 		didSet {
 			if let arrowIndicationX = arrowIndicationX {
+                //添加箭头
 				tableViewContainer.addSubview(arrowIndication)
 				arrowIndication.tintColor = tableViewBackgroundColor
 				arrowIndication.frame.origin.x = arrowIndicationX
@@ -176,18 +189,20 @@ public final class DropDown: UIView {
 	fileprivate var yConstraint: NSLayoutConstraint!
 
 	//MARK: Appearance
+    //行高
 	@objc public dynamic var cellHeight = DPDConstant.UI.RowHeight {
 		willSet { tableView.rowHeight = newValue }
 		didSet { reloadAllComponents() }
 	}
-
+    //注意修饰是dynamic
 	@objc fileprivate dynamic var tableViewBackgroundColor = DPDConstant.UI.BackgroundColor {
 		willSet {
             tableView.backgroundColor = newValue
+            //箭头的颜色
             if arrowIndicationX != nil { arrowIndication.tintColor = newValue }
         }
 	}
-
+    //重写背景色
 	public override var backgroundColor: UIColor? {
 		get { return tableViewBackgroundColor }
 		set { tableViewBackgroundColor = newValue! }
@@ -196,6 +211,7 @@ public final class DropDown: UIView {
 	/**
 	The color of the dimmed background (behind the drop down, covering the entire screen).
 	*/
+    //暗灰色
 	public var dimmedBackgroundColor = UIColor.clear {
 		willSet { super.backgroundColor = newValue }
 	}
@@ -205,6 +221,7 @@ public final class DropDown: UIView {
 
 	Changing the background color automatically reloads the drop down.
 	*/
+    //选中背景色
 	@objc public dynamic var selectionBackgroundColor = DPDConstant.UI.SelectionBackgroundColor
 
 	/**
@@ -212,6 +229,7 @@ public final class DropDown: UIView {
 
 	Changing the separator color automatically reloads the drop down.
 	*/
+    //分割的颜色
 	@objc public dynamic var separatorColor = DPDConstant.UI.SeparatorColor {
 		willSet { tableView.separatorColor = newValue }
 		didSet { reloadAllComponents() }
@@ -222,6 +240,7 @@ public final class DropDown: UIView {
 
 	Changing the corner radius automatically reloads the drop down.
 	*/
+    //设置圆角
 	@objc public dynamic var cornerRadius = DPDConstant.UI.CornerRadius {
 		willSet {
 			tableViewContainer.layer.cornerRadius = newValue
@@ -233,6 +252,7 @@ public final class DropDown: UIView {
 	/**
 	Alias method for `cornerRadius` variable to avoid ambiguity.
 	*/
+    //别名方法
 	@objc public dynamic func setupCornerRadius(_ radius: CGFloat) {
 		tableViewContainer.layer.cornerRadius = radius
 		tableView.layer.cornerRadius = radius
@@ -245,6 +265,7 @@ public final class DropDown: UIView {
 	Changing the masked corners automatically reloads the drop down.
 	*/
 	@available(iOS 11.0, *)
+    //mask
 	@objc public dynamic func setupMaskedCorners(_ cornerMask: CACornerMask) {
 		tableViewContainer.layer.maskedCorners = cornerMask
 		tableView.layer.maskedCorners = cornerMask
@@ -294,6 +315,7 @@ public final class DropDown: UIView {
 	/**
 	The duration of the show/hide animation.
 	*/
+    //动画时间
 	@objc public dynamic var animationduration = DPDConstant.Animation.Duration
 
 	/**
@@ -304,11 +326,13 @@ public final class DropDown: UIView {
 	/**
 	The option of the hide animation. Global change.
 	*/
+    //退出动画
 	public static var animationExitOptions = DPDConstant.Animation.ExitOptions
 	
 	/**
 	The option of the show animation. Only change the caller. To change all drop down's use the static var.
 	*/
+    //出现动画
 	public var animationEntranceOptions: UIView.AnimationOptions = DropDown.animationEntranceOptions
 	
 	/**
@@ -355,6 +379,7 @@ public final class DropDown: UIView {
      
      Changing the cell nib automatically reloads the drop down.
      */
+    //注册cell
 	public var cellNib = UINib(nibName: "DropDownCell", bundle: Bundle(for: DropDownCell.self)) {
 		didSet {
 			tableView.register(cellNib, forCellReuseIdentifier: DPDConstant.ReusableIdentifier.DropDownCell)
@@ -370,6 +395,7 @@ public final class DropDown: UIView {
 
 	Changing the data source automatically reloads the drop down.
 	*/
+    //数据源
 	public var dataSource = [String]() {
 		didSet {
             deselectRows(at: selectedRowIndices)
@@ -383,6 +409,7 @@ public final class DropDown: UIView {
 	Changing this value automatically reloads the drop down.
 	This has uses for setting accibility identifiers on the drop down cells (same ones as the localization keys).
 	*/
+    //
 	public var localizationKeysDataSource = [String]() {
 		didSet {
 			dataSource = localizationKeysDataSource.map { NSLocalizedString($0, comment: "") }
@@ -390,6 +417,7 @@ public final class DropDown: UIView {
 	}
 
 	/// The indicies that have been selected
+    //选择的Row
 	fileprivate var selectedRowIndices = Set<Index>()
 
 	/**
@@ -398,6 +426,7 @@ public final class DropDown: UIView {
 	By default, the cell's text takes the plain `dataSource` value.
 	Changing `cellConfiguration` automatically reloads the drop down.
 	*/
+    //配置cell
 	public var cellConfiguration: ConfigurationClosure? {
 		didSet { reloadAllComponents() }
 	}
@@ -407,11 +436,13 @@ public final class DropDown: UIView {
      
      Changing `customCellConfiguration` automatically reloads the drop down.
      */
+    //配置cell
     public var customCellConfiguration: CellConfigurationClosure? {
         didSet { reloadAllComponents() }
     }
 
 	/// The action to execute when the user selects a cell.
+    //选中
 	public var selectionAction: SelectionClosure?
     
     /**
@@ -420,26 +451,32 @@ public final class DropDown: UIView {
     Providing an action will turn on multiselection mode.
     The single selection action will still be called if provided.
     */
+    //多选
     public var multiSelectionAction: MultiSelectionClosure?
 
 	/// The action to execute when the drop down will show.
+    //将要显示
 	public var willShowAction: Closure?
 
 	/// The action to execute when the user cancels/hides the drop down.
+    //取消选择
 	public var cancelAction: Closure?
 
 	/// The dismiss mode of the drop down. Default is `OnTap`.
+    //隐藏方式
 	public var dismissMode = DismissMode.onTap {
+        //willSet
 		willSet {
 			if newValue == .onTap {
 				let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissableViewTapped))
 				dismissableView.addGestureRecognizer(gestureRecognizer)
 			} else if let gestureRecognizer = dismissableView.gestureRecognizers?.first {
+                //移除点击手势
 				dismissableView.removeGestureRecognizer(gestureRecognizer)
 			}
 		}
 	}
-
+    //最小高度等于一个cell时候的高度
 	fileprivate var minHeight: CGFloat {
 		return tableView.rowHeight
 	}
@@ -458,6 +495,7 @@ public final class DropDown: UIView {
 	the `anchorView` and the `selectionAction`
 	at least before calling `show()`.
 	*/
+    //构造方法
 	public convenience init() {
 		self.init(frame: .zero)
 	}
@@ -508,6 +546,7 @@ private extension DropDown {
 
 		DispatchQueue.main.async {
 			//HACK: If not done in dispatch_async on main queue `setupUI` will have no effect
+            //更新约束
 			self.updateConstraintsIfNeeded()
 			self.setupUI()
 		}
@@ -528,7 +567,7 @@ private extension DropDown {
 
 	func setupUI() {
 		super.backgroundColor = dimmedBackgroundColor
-
+        //容器
 		tableViewContainer.layer.masksToBounds = false
 		tableViewContainer.layer.cornerRadius = cornerRadius
 		tableViewContainer.layer.shadowColor = shadowColor.cgColor
@@ -547,16 +586,17 @@ private extension DropDown {
 //MARK: - UI
 
 extension DropDown {
-
+    //重写更新约束
 	public override func updateConstraints() {
 		if !didSetupConstraints {
+            //添加约束：只能添加一次
 			setupConstraints()
 		}
 
 		didSetupConstraints = true
-
+        //计算布局
 		let layout = computeLayout()
-
+        //显示不了就不显示了
 		if !layout.canBeDisplayed {
 			super.updateConstraints()
 			hide()
@@ -568,16 +608,17 @@ extension DropDown {
 		yConstraint.constant = layout.y
 		widthConstraint.constant = layout.width
 		heightConstraint.constant = layout.visibleHeight
-
+        //是否可以滑动
 		tableView.isScrollEnabled = layout.offscreenHeight > 0
 
 		DispatchQueue.main.async { [weak self] in
+            //在短时间显示indicator
 			self?.tableView.flashScrollIndicators()
 		}
 
 		super.updateConstraints()
 	}
-
+    //设置约束
 	fileprivate func setupConstraints() {
 		translatesAutoresizingMaskIntoConstraints = false
 
@@ -620,6 +661,7 @@ extension DropDown {
 			attribute: .notAnAttribute,
 			multiplier: 1,
 			constant: 0)
+        //宽度
 		tableViewContainer.addConstraint(widthConstraint)
 
 		heightConstraint = NSLayoutConstraint(
@@ -645,17 +687,17 @@ extension DropDown {
 		// When orientation changes, layoutSubviews is called
 		// We update the constraint to update the position
 		setNeedsUpdateConstraints()
-
+        //阴影
 		let shadowPath = UIBezierPath(roundedRect: tableViewContainer.bounds, cornerRadius: cornerRadius)
 		tableViewContainer.layer.shadowPath = shadowPath.cgPath
 	}
-
+    //计算布局
 	fileprivate func computeLayout() -> (x: CGFloat, y: CGFloat, width: CGFloat, offscreenHeight: CGFloat, visibleHeight: CGFloat, canBeDisplayed: Bool, Direction: Direction) {
 		var layout: ComputeLayoutTuple = (0, 0, 0, 0)
 		var direction = self.direction
 
 		guard let window = UIWindow.visibleWindow() else { return (0, 0, 0, 0, 0, false, direction) }
-
+        //条件
 		barButtonItemCondition: if let anchorView = anchorView as? UIBarButtonItem {
 			let isRightBarButtonItem = anchorView.plainView.frame.minX > window.frame.midX
 
@@ -689,6 +731,7 @@ extension DropDown {
 				layout = computeLayoutBottomDisplay(window: window)
 				direction = .bottom
 			case .top:
+                //在top的时候
 				layout = computeLayoutForTopDisplay(window: window)
 				direction = .top
 			}
@@ -698,12 +741,14 @@ extension DropDown {
 		constraintWidthToBoundsIfNecessary(layout: &layout, in: window)
 		
 		let visibleHeight = tableHeight - layout.offscreenHeight
+        //能否显示
 		let canBeDisplayed = visibleHeight >= minHeight
 
 		return (layout.x, layout.y, layout.width, layout.offscreenHeight, visibleHeight, canBeDisplayed, direction)
 	}
-
+    //自动计算frame
 	fileprivate func computeLayoutBottomDisplay(window: UIWindow) -> ComputeLayoutTuple {
+        //计算高度
 		var offscreenHeight: CGFloat = 0
 		
 		let width = self.width ?? (anchorView?.plainView.bounds.width ?? fittingWidth()) - bottomOffset.x
@@ -728,18 +773,19 @@ extension DropDown {
 		
 		return (x, y, width, offscreenHeight)
 	}
-
+    //计算top的frame
 	fileprivate func computeLayoutForTopDisplay(window: UIWindow) -> ComputeLayoutTuple {
 		var offscreenHeight: CGFloat = 0
 
 		let anchorViewX = anchorView?.plainView.windowFrame?.minX ?? 0
 		let anchorViewMaxY = anchorView?.plainView.windowFrame?.maxY ?? 0
-
+        //x坐标
 		let x = anchorViewX + topOffset.x
+        //y坐标
 		var y = (anchorViewMaxY + topOffset.y) - tableHeight
 
 		let windowY = window.bounds.minY + DPDConstant.UI.HeightPadding
-
+        //
 		if y < windowY {
 			offscreenHeight = abs(y - windowY)
 			y = windowY
@@ -749,17 +795,20 @@ extension DropDown {
 		
 		return (x, y, width, offscreenHeight)
 	}
-	
+
+    //计算宽度:计算最大的宽度
 	fileprivate func fittingWidth() -> CGFloat {
 		if templateCell == nil {
 			templateCell = (cellNib.instantiate(withOwner: nil, options: nil)[0] as! DropDownCell)
 		}
 		
 		var maxWidth: CGFloat = 0
-		
+
 		for index in 0..<dataSource.count {
 			configureCell(templateCell, at: index)
+            //高度
 			templateCell.bounds.size.height = cellHeight
+            //计算宽度： Compressed：压缩的
 			let width = templateCell.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).width
 			
 			if width > maxWidth {
@@ -773,23 +822,26 @@ extension DropDown {
 	fileprivate func constraintWidthToBoundsIfNecessary(layout: inout ComputeLayoutTuple, in window: UIWindow) {
 		let windowMaxX = window.bounds.maxX
 		let maxX = layout.x + layout.width
-		
+		//超出x边界
 		if maxX > windowMaxX {
+            //差值
 			let delta = maxX - windowMaxX
 			let newOrigin = layout.x - delta
 			
 			if newOrigin > 0 {
 				layout.x = newOrigin
 			} else {
+                //当小于0的时候就从0开始
 				layout.x = 0
+                //其实是减法
 				layout.width += newOrigin // newOrigin is negative, so this operation is a substraction
 			}
 		}
 	}
-	
+	//设置最大宽度
 	fileprivate func constraintWidthToFittingSizeIfNecessary(layout: inout ComputeLayoutTuple) {
 		guard width == nil else { return }
-		
+
 		if layout.width < fittingWidth() {
 			layout.width = fittingWidth()
 		}
@@ -806,8 +858,10 @@ extension DropDown {
      
      - returns: An NSDictionary with a value for the "canBeDisplayed" Bool, and possibly for the "offScreenHeight" Optional(CGFloat).
      */
+    //返回一个字典
     @objc(show)
     public func objc_show() -> NSDictionary {
+        //显示
         let (canBeDisplayed, offScreenHeight) = show()
         
         var info = [AnyHashable: Any]()
@@ -863,6 +917,7 @@ extension DropDown {
         if transform != nil {
             tableViewContainer.transform = transform!
         } else {
+            //缩放动画
             tableViewContainer.transform = downScaleTransform
         }
 
@@ -897,6 +952,7 @@ extension DropDown {
 	}
 
 	/// Hides the drop down.
+    //隐藏
 	public func hide() {
 		if self == DropDown.VisibleDropDown {
 			/*
@@ -920,22 +976,24 @@ extension DropDown {
 			},
 			completion: { [weak self] finished in
 				guard let `self` = self else { return }
-
+                //隐藏
 				self.isHidden = true
+                //移除
 				self.removeFromSuperview()
 				UIAccessibility.post(notification: .screenChanged, argument: nil)
 		})
 	}
-
+    //取消
 	fileprivate func cancel() {
 		hide()
 		cancelAction?()
 	}
-
+    //修改透明度
 	fileprivate func setHiddentState() {
 		alpha = 0
 	}
 
+    //显示
 	fileprivate func setShowedState() {
 		alpha = 1
 		tableViewContainer.transform = CGAffineTransform.identity
@@ -954,9 +1012,11 @@ extension DropDown {
 	`dataSource`, `textColor`, `textFont`, `selectionBackgroundColor`
 	and `cellConfiguration` implicitly calls `reloadAllComponents()`.
 	*/
+    //刷新UI
 	public func reloadAllComponents() {
 		DispatchQueue.executeOnMainThread {
 			self.tableView.reloadData()
+            //更新约束
 			self.setNeedsUpdateConstraints()
 		}
 	}
@@ -984,7 +1044,7 @@ extension DropDown {
             tableView.reloadData()
         }
     }
-
+    //取消选择
 	public func deselectRow(at index: Index?) {
 		guard let index = index
 			, index >= 0
@@ -994,7 +1054,7 @@ extension DropDown {
         if let selectedRowIndex = selectedRowIndices.firstIndex(where: { $0 == index  }) {
             selectedRowIndices.remove(at: selectedRowIndex)
         }
-
+        //取消选择
 		tableView.deselectRow(at: IndexPath(row: index, section: 0), animated: true)
 	}
     
@@ -1018,6 +1078,7 @@ extension DropDown {
 	}
 
 	/// Returns the height needed to display all cells.
+    //tableView的高度
 	fileprivate var tableHeight: CGFloat {
 		return tableView.rowHeight * CGFloat(dataSource.count)
 	}
@@ -1082,6 +1143,7 @@ extension DropDown: UITableViewDataSource, UITableViewDelegate {
 	}
 
 	public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //选中的Row
 		let selectedRowIndex = (indexPath as NSIndexPath).row
         
         
@@ -1097,12 +1159,14 @@ extension DropDown: UITableViewDataSource, UITableViewDelegate {
                 return
             }
             else {
+                //
                 selectedRowIndices.insert(selectedRowIndex)
 
 				let selectedRowIndicesArray = Array(selectedRowIndices)
 				let selectedRows = selectedRowIndicesArray.map { dataSource[$0] }
-                
+                //单选
                 selectionAction?(selectedRowIndex, dataSource[selectedRowIndex])
+                //多选
                 multiSelectionCallback(selectedRowIndicesArray, selectedRows)
                 tableView.reloadData()
                 return
@@ -1112,6 +1176,7 @@ extension DropDown: UITableViewDataSource, UITableViewDelegate {
         // Perform single selection logic
         selectedRowIndices.removeAll()
         selectedRowIndices.insert(selectedRowIndex)
+        //单选的row
         selectionAction?(selectedRowIndex, dataSource[selectedRowIndex])
         
         if let _ = anchorView as? UIBarButtonItem {
@@ -1128,7 +1193,7 @@ extension DropDown: UITableViewDataSource, UITableViewDelegate {
 //MARK: - Auto dismiss
 
 extension DropDown {
-
+    //命中测试
 	public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
 		let view = super.hitTest(point, with: event)
 
@@ -1139,7 +1204,7 @@ extension DropDown {
 			return view
 		}
 	}
-
+    //隐藏
 	@objc
 	fileprivate func dismissableViewTapped() {
 		cancel()
@@ -1155,6 +1220,7 @@ extension DropDown {
 	Starts listening to keyboard events.
 	Allows the drop down to display correctly when keyboard is showed.
 	*/
+    //监听键盘
 	@objc public static func startListeningToKeyboard() {
 		KeyboardListener.sharedInstance.startListeningToKeyboard()
 	}
@@ -1173,11 +1239,12 @@ extension DropDown {
 			name: UIResponder.keyboardWillHideNotification,
 			object: nil)
 	}
-
+    //停止监听
 	fileprivate func stopListeningToNotifications() {
 		NotificationCenter.default.removeObserver(self)
 	}
 
+    //键盘弹出，更新约束
 	@objc
 	fileprivate func keyboardUpdate() {
 		self.setNeedsUpdateConstraints()
@@ -1186,6 +1253,7 @@ extension DropDown {
 }
 
 private extension DispatchQueue {
+    //主线程刷新
 	static func executeOnMainThread(_ closure: @escaping Closure) {
 		if Thread.isMainThread {
 			closure()
